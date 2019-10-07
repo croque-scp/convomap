@@ -1,2 +1,5 @@
-*.vim
-*.sw*
+package-lock.json
+node_modules/
+dist/
+build/
+.idea/
