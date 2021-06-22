@@ -1,13 +1,10 @@
 {
-  "name": "maitreya",
-  "productName": "maitreya",
+  "name": "convomap",
+  "productName": "convomap",
   "version": "0.0.0",
   "main": "src/index.ts",
   "scripts": {
-    "main:start": "NODE_ENV=development webpack serve --config webpack.config.js --open --open-page webpack-dev-server/",
-    "main:build": "NODE_ENV=production webpack --config webpack.config.js",
-    "editor:build": "NODE_ENV=development webpack --config webpack.config.js",
-    "editor:start": "npm run editor:build && electron ./dist/editorElectron.js",
+    "dev": "NODE_ENV=development webpack --config webpack.config.js && electron ./dist/editorElectron.js",
     "lint": "prettier --check .",
     "fix": "prettier --write ."
   },
