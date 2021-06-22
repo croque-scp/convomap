@@ -39,6 +39,9 @@ export type ValueId = Identifier
 /**
  * A batch of messages, used to reduce duplication of settings that would
  * have been applied to each of them individually.
+ * 
+ * TODO Rename property 'messages' to 'text' or similar? Property messages
+ * -> messages is duplicated in output
  */
 export type MessageGroup = {
   messages: (string | SingleMessage | Conditional<string | SingleMessage>)[]
@@ -71,7 +74,7 @@ export type SingleMessage = {
  * conditions pass.
  * @property modifier - General modifiers that are not character-specific.
  * @property class - Straight-up just CSS class names to pass to the final
- * message.
+ * message. TODO Deprecate in favour of something implementation-agnostic
  */
 export type MessageSettings = {
   speakerModifier?: string[]
@@ -118,6 +121,8 @@ export type MessageTimingControl = {
  * interaction. This can be used to have the player character say things
  * relating to their choice. The default speaker is the player. Prefer
  * putting messages into their own interactions.
+ * @property optionModifier - A modifier to be passed to the implementation.
+ * TODO Where are option modifiers declared?
  */
 export type Option = {
   text: string | false
@@ -125,6 +130,7 @@ export type Option = {
   displayIf?: Condition[]
   onSelect?: (Action | Conditional<Action>)[]
   messages?: (MessageGroup | Conditional<MessageGroup>)[]
+  optionModifier?: string
 }
 
 /**
@@ -244,6 +250,12 @@ export type Delay = {
 /**
  * A single interaction containing messages and subsequent options to display.
  *
+ * @property id - An ID for this interaction, which must be unique across
+ * all interactions in this event (but does not need to be unique across
+ * all interactions in the whole story.)
+ * @property speaker - The default speaker for message in this interaction,
+ * if it does not differ from the event's default speaker.
+ * TODO Rename to defaultSpeaker
  * @property onStart - An action to be executed before any messages are shown.
  * @property onEnd - An action to be executed after the options are shown.
  * @property onMessagesEnd - An action to be executed after the messages are
@@ -251,7 +263,7 @@ export type Delay = {
  */
 export type Interaction = {
   id: string
-  speaker: string
+  speaker?: string
   // TODO Change 'messages' to 'messageGroups'
   messages: (MessageGroup | Conditional<MessageGroup>)[]
   options?: (Option | Conditional<Option>)[]
@@ -264,10 +276,23 @@ export type Interaction = {
  * An event that contains a series of interactions.
  *
  * The interactions can be arbitrarily nested into sub-events.
+ * 
+ * @property id - An ID for this event, which must be unique across all
+ * events in the story.
+ * @property summary - A short summary of the event to remind the writer
+ * what it is.
+ * @property defaultSpeaker - The default speaker for each interaction in
+ * this event.
+ * @property defaultOptionModifier - The default option modifier for each
+ * option in each interaction in this event.
+ * @property interactions - The interactions contained in this event. They
+ * are supposed to link to and reference each other, but they don't have to.
  */
 export type Event = {
   id: string
   summary: string
+  defaultSpeaker?: string
+  defaultOptionModifier?: string
   interactions: Interaction[]
 }
 
