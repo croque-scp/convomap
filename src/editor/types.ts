@@ -39,7 +39,7 @@ export type ValueId = Identifier
 /**
  * A batch of messages, used to reduce duplication of settings that would
  * have been applied to each of them individually.
- * 
+ *
  * TODO Rename property 'messages' to 'text' or similar? Property messages
  * -> messages is duplicated in output
  */
@@ -276,7 +276,7 @@ export type Interaction = {
  * An event that contains a series of interactions.
  *
  * The interactions can be arbitrarily nested into sub-events.
- * 
+ *
  * @property id - An ID for this event, which must be unique across all
  * events in the story.
  * @property summary - A short summary of the event to remind the writer
@@ -297,8 +297,15 @@ export type Event = {
 }
 
 /**
- * A list of events, keyed to the path of each event in the filesystem.
+ * The main events object, which is the contents of the events file.
+ *
+ * @property _meta - Meta information about the events. The _convomap
+ * property is required.
+ * @property events - The list of events
  */
-export type EventsList = {
-  [path: string]: Event
+export type EventsRegistry = {
+  _meta: {
+    _convomap: string
+  } & Record<string, unknown> // TODO
+  events: Event[]
 }

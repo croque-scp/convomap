@@ -15,8 +15,8 @@ export const fileReadWriteApi = {
      * Subscribes to the next events file read response.
      */
     singleResponse: (callback: (eventFile: string) => void): void => {
-      ipcRenderer.once("read-events-file_response", (ipcEvent, eventFile) => {
-        callback(eventFile)
+      ipcRenderer.once("read-events-file_response", (ipcEvent, eventsFile) => {
+        callback(eventsFile)
       })
     },
   },
