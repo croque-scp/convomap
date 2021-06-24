@@ -3,7 +3,6 @@ const webpack = require("webpack")
 const { merge } = require("webpack-merge")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const { VueLoaderPlugin } = require("vue-loader")
-const TerserPlugin = require("terser-webpack-plugin")
 
 const dev = process.env.NODE_ENV === "development"
 
@@ -52,30 +51,6 @@ const common = {
   ],
 }
 
-const mainWeb = merge(common, {
-  entry: {
-    mainWeb: "./src/index.ts",
-  },
-  optimization: {
-    minimize: !dev,
-    minimizer: [new TerserPlugin({ extractComments: false })],
-    usedExports: true,
-    splitChunks: {
-      chunks: "all",
-    },
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-      title: "Maitreya.aic",
-      filename: "index.html",
-      chunks: ["main"],
-      meta: {
-        viewport: "width=device-width, initial-scale=1",
-      },
-    }),
-  ],
-})
-
 const editorElectronMain = merge(common, {
   entry: {
     editorElectronMain: "./src/editor/electron.ts",
@@ -110,7 +85,6 @@ const editorElectronRenderer = merge(common, {
 })
 
 module.exports = [
-  // mainWeb,
   editorElectronMain,
   editorElectronPreload,
   editorElectronRenderer,

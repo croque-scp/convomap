@@ -3,70 +3,51 @@ import { IpcMainEvent } from "electron"
 import path from "path"
 import fs from "fs"
 import { execSync } from "child_process"
-import recursiveReadDir from "recursive-readdir"
 
-const eventsPath = path.resolve("./src/events/")
+const eventsFilePath = process.argv[0]
+if (!eventsFilePath) {
+  throw new Error("No event file provided")
+}
+console.info(`The events file is`, path.resolve(eventsFilePath))
 
 // The types in this IPC channel should be the same as those in preload.ts -
 // they are not automatically checked by TypeScript
 
 /**
- * Reads the events dir and returns a list of files within it.
+ * Reads the events file that was specified on the command line and sends
+ * its contents back to the renderer process.
  */
-export class ReadEventsDirChannel implements IpcChannelInterface {
-  name = "read-events-dir"
+export class ReadEventsFileChannel implements IpcChannelInterface {
+  name = "read-events-file"
 
   handle(event: IpcMainEvent, request: IpcRequest<never>): void {
-    recursiveReadDir(eventsPath, (_, filePaths) => {
-      filePaths = filePaths.map((filePath) =>
-        // Strip the constant part of the path from the list to make a list
-        // of paths relative to the events directory
-        filePath.slice(eventsPath.length)
-      )
-      if (!request.responseChannel) {
-        request.responseChannel = `${this.name}_response`
-      }
-      event.sender.send(request.responseChannel, filePaths)
-    })
+    const eventsFile = fs.readFileSync(path.resolve(eventsFilePath), "utf-8")
+
+    if (!request.responseChannel) {
+      request.responseChannel = `${this.name}_response`
+    }
+    event.sender.send(request.responseChannel, eventsFile)
   }
 }
 
 /**
- * Reads an individual events file and returns its contents.
+ * Writes a string to the events file, replacing its existing contents, and
+ * backing up the previous contents to another file.
+ *
+ * Called with a single argument which is a string representing the
+ * contents of the new file.
  */
-export class ReadEventsFileChannel implements IpcChannelInterface {
-  name = "read-events-file"
+export class WriteEventsFileChannel implements IpcChannelInterface {
+  name = "write-events-file"
 
   handle(event: IpcMainEvent, request: IpcRequest<string>): void {
     if (!request.responseChannel) {
       request.responseChannel = `${this.name}_response`
     }
-    const filePath = request.params
-    const file = path.join(eventsPath, filePath)
-    const eventFile = fs.readFileSync(file, "utf-8")
-    event.sender.send(request.responseChannel, eventFile)
-  }
-}
-
-/**
- * Writes a string to an events file, replacing its existing contents, and
- * backing up the previous contents to another file.
- *
- * Parameters for the IpcRequest:
- * @param 0 - Path from the root events dir to the wanted events file.
- * @param 1 - Textual content of the new file.
- */
-export class WriteEventsFileChannel implements IpcChannelInterface {
-  name = "write-events-file"
-
-  handle(event: IpcMainEvent, request: IpcRequest<[string, string]>): void {
-    if (!request.responseChannel) {
-      request.responseChannel = `${this.name}_response`
-    }
-    const [filePath, textContent] = request.params
-    const file = path.join(eventsPath, filePath)
+    const textContent = request.params
     // Create a specific backup. The file name is hashed against the
     // current date, time, and most recent commit.
+    // TODO Handle case when this fails / git not in use
     const commitHash = execSync("git rev-parse HEAD", {
       encoding: "utf-8",
     }).substring(0, 8)
@@ -76,17 +57,18 @@ export class WriteEventsFileChannel implements IpcChannelInterface {
     const currentTime = new Date(
       Math.floor(new Date().getTime() / halfAnHour) * halfAnHour
     )
-    const backupFile = path.join(
-      eventsPath,
-      filePath.replace(
-        ".json",
-        `.${currentTime.toISOString()}-${commitHash}.bak.json`
-      )
+    const backupFilePath = eventsFilePath.replace(
+      ".json",
+      `.bak.${currentTime.toISOString()}-${commitHash}.json`
     )
     // Back up the events file, failing if a file with the same name exists
-    fs.copyFileSync(file, backupFile, fs.constants.COPYFILE_EXCL)
+    fs.copyFileSync(
+      path.resolve(eventsFilePath),
+      path.resolve(backupFilePath),
+      fs.constants.COPYFILE_EXCL
+    )
     // Write the new file
-    fs.writeFileSync(file, textContent)
+    fs.writeFileSync(path.resolve(eventsFilePath), textContent)
     // Inform the renderer process that the file has been saved
     event.sender.send(request.responseChannel)
   }
