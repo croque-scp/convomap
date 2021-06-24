@@ -53,7 +53,7 @@ const common = {
 
 const editorElectronMain = merge(common, {
   entry: {
-    editorElectronMain: "./src/editor/electron.ts",
+    editorElectronMain: "./src/editor/electronMain.ts",
   },
   target: "electron-main",
   output: {
@@ -63,7 +63,7 @@ const editorElectronMain = merge(common, {
 
 const editorElectronPreload = merge(common, {
   entry: {
-    editorElectronPreload: "./src/editor/preload.ts",
+    editorElectronPreload: "./src/editor/electronPreload.ts",
   },
   target: "electron-preload",
   output: {
@@ -73,7 +73,7 @@ const editorElectronPreload = merge(common, {
 
 const editorElectronRenderer = merge(common, {
   entry: {
-    editorElectronRenderer: "./src/editor/renderer.ts",
+    editorElectronRenderer: "./src/editor/electronRenderer.ts",
   },
   target: "electron-renderer",
   plugins: [

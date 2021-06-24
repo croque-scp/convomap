@@ -1,4 +1,4 @@
-import { fileReadWriteApi } from "../preload"
+import { fileReadWriteApi } from "../electronPreload"
 
 declare global {
   interface Window {
