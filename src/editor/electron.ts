@@ -3,7 +3,6 @@ import path from "path"
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer"
 import { IpcChannelInterface } from "./ipc/ipcChannelInterface"
 import {
-  ReadEventsDirChannel,
   ReadEventsFileChannel,
   WriteEventsFileChannel,
 } from "./ipc/fileReadWriteChannel"
@@ -82,8 +81,4 @@ class Main {
   }
 }
 
-new Main().init([
-  new ReadEventsDirChannel(),
-  new ReadEventsFileChannel(),
-  new WriteEventsFileChannel(),
-])
+new Main().init([new ReadEventsFileChannel(), new WriteEventsFileChannel()])
