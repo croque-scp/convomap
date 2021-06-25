@@ -1,17 +1,15 @@
 const path = require("path")
 const webpack = require("webpack")
+const { merge } = require("webpack-merge")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const { VueLoaderPlugin } = require("vue-loader")
-const TerserPlugin = require("terser-webpack-plugin")
 
 const dev = process.env.NODE_ENV === "development"
 
-module.exports = {
+const common = {
+  context: path.resolve(__dirname, "."),
   mode: process.env.NODE_ENV,
   ...(dev ? { devtool: "eval-source-map" } : {}),
-  entry: {
-    main: "./src/index.ts",
-  },
   output: {
     filename: "bundle.[name].js",
     path: path.resolve(__dirname, "dist"),
@@ -41,13 +39,8 @@ module.exports = {
       },
     ],
   },
-  optimization: {
-    minimize: !dev,
-    minimizer: [new TerserPlugin({ extractComments: false })],
-    usedExports: true,
-    splitChunks: {
-      chunks: "all",
-    },
+  resolve: {
+    extensions: [".ts", ".js"],
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -55,13 +48,44 @@ module.exports = {
       __VUE_PROD_DEVTOOLS__: false,
     }),
     new VueLoaderPlugin(),
-    new HtmlWebpackPlugin({
-      title: "Maitreya.aic",
-      filename: "index.html",
-      chunks: ["main"],
-      meta: {
-        viewport: "width=device-width, initial-scale=1",
-      },
-    }),
   ],
 }
+
+const editorElectronMain = merge(common, {
+  entry: {
+    editorElectronMain: "./src/editor/electronMain.ts",
+  },
+  target: "electron-main",
+  output: {
+    filename: "editorElectron.js",
+  },
+})
+
+const editorElectronPreload = merge(common, {
+  entry: {
+    editorElectronPreload: "./src/editor/electronPreload.ts",
+  },
+  target: "electron-preload",
+  output: {
+    filename: "editorPreload.js",
+  },
+})
+
+const editorElectronRenderer = merge(common, {
+  entry: {
+    editorElectronRenderer: "./src/editor/electronRenderer.ts",
+  },
+  target: "electron-renderer",
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: "Events editor",
+      template: "./src/editor/index.html",
+    }),
+  ],
+})
+
+module.exports = [
+  editorElectronMain,
+  editorElectronPreload,
+  editorElectronRenderer,
+]
