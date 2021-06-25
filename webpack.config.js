@@ -53,7 +53,7 @@ const common = {
 
 const editorElectronMain = merge(common, {
   entry: {
-    editorElectronMain: "./src/editor/electronMain.ts",
+    editorElectronMain: "./src/electronMain.ts",
   },
   target: "electron-main",
   output: {
@@ -63,7 +63,7 @@ const editorElectronMain = merge(common, {
 
 const editorElectronPreload = merge(common, {
   entry: {
-    editorElectronPreload: "./src/editor/electronPreload.ts",
+    editorElectronPreload: "./src/electronPreload.ts",
   },
   target: "electron-preload",
   output: {
@@ -73,13 +73,13 @@ const editorElectronPreload = merge(common, {
 
 const editorElectronRenderer = merge(common, {
   entry: {
-    editorElectronRenderer: "./src/editor/electronRenderer.ts",
+    editorElectronRenderer: "./src/electronRenderer.ts",
   },
   target: "electron-renderer",
   plugins: [
     new HtmlWebpackPlugin({
       title: "Events editor",
-      template: "./src/editor/index.html",
+      template: "./src/index.html",
     }),
   ],
 })

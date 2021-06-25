@@ -1,4 +1,4 @@
 import { createApp } from "vue"
-import Editor from "./editor/components/Editor.vue"
+import Editor from "./components/Editor.vue"
 
 createApp(Editor).mount("body")
