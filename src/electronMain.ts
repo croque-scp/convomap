@@ -49,6 +49,7 @@ class Main {
       },
     })
     void this.mainWindow.loadFile(path.join(__dirname, "index.html"))
+    this.mainWindow.maximize()
   }
 
   private installDevtools = () => {
