@@ -104,13 +104,7 @@ export type MessageTimingControl = {
  * An option that appears and will be presented to the player when the
  * interaction is finished.
  *
- * If only one option would be presented AND its text is false, the option's
- * target interaction happens immediately without any input from the player.
- *
- * Otherwise, if an option's text is false, it is not presented, regardless
- * of its displayIf property.
- *
- * @property text - The text of the option, or false.
+ * @property text - The text of the option.
  * @property targetInteraction - An identifier pointing to the interaction
  * to jump to after selecting this option.
  * @property displayIf - This option will not appear unless these conditions
@@ -125,7 +119,7 @@ export type MessageTimingControl = {
  * TODO Where are option modifiers declared?
  */
 export type Option = {
-  text: string | false
+  text: string
   targetInteraction?: InteractionId | Conditional<InteractionId>
   displayIf?: Condition[]
   onSelect?: (Action | Conditional<Action>)[]
@@ -256,6 +250,13 @@ export type Delay = {
  * @property speaker - The default speaker for message in this interaction,
  * if it does not differ from the event's default speaker.
  * TODO Rename to defaultSpeaker
+ * @property messages - A list of message groups to be shown when this
+ * interaction appears, followed by its options (if any).
+ * @property options - A list of options that will appear at the end of
+ * this interaction.
+ * @property fallbackTargetInteraction - After the conditions of all
+ * options have been evaluated, if no options would appear, instead of the
+ * event stopping here, this interaction begins instead.
  * @property onStart - An action to be executed before any messages are shown.
  * @property onEnd - An action to be executed after the options are shown.
  * @property onMessagesEnd - An action to be executed after the messages are
@@ -267,6 +268,7 @@ export type Interaction = {
   // TODO Change 'messages' to 'messageGroups'
   messages: (MessageGroup | Conditional<MessageGroup>)[]
   options?: (Option | Conditional<Option>)[]
+  fallbackTargetInteraction?: InteractionId
   onStart?: (Action | Conditional<Action>)[]
   onMessagesEnd?: (Action | Conditional<Action>)[]
   onEnd?: (Action | Conditional<Action>)[]
