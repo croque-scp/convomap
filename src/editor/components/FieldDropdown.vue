@@ -1,13 +1,15 @@
 <template>
   <label>
     {{ label }}
-    <select :value="value" @change="$emit('updateValue', $event.target.value)">
+    <select v-model="dropdownValue">
       <option v-for="speaker in speakers" :key="speaker">
         {{ speaker }}
       </option>
     </select>
   </label>
 </template>
+
+<!-- Currently only supports speakers but will support more TODO -->
 
 <script lang="ts">
 import { defineComponent } from "vue"
@@ -34,6 +36,16 @@ export default defineComponent({
     return {
       speakers,
     }
+  },
+  computed: {
+    dropdownValue: {
+      get(): string {
+        return this.value
+      },
+      set(input: string) {
+        this.$emit("updateValue", input)
+      },
+    },
   },
 })
 </script>

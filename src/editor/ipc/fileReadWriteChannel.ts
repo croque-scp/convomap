@@ -3,12 +3,7 @@ import { IpcMainEvent } from "electron"
 import path from "path"
 import fs from "fs"
 import { execSync } from "child_process"
-
-const eventsFilePath = process.argv[0]
-if (!eventsFilePath) {
-  throw new Error("No event file provided")
-}
-console.info(`The events file is`, path.resolve(eventsFilePath))
+import { eventsFilePath } from "../electronMain"
 
 // The types in this IPC channel should be the same as those in preload.ts -
 // they are not automatically checked by TypeScript

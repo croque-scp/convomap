@@ -1,11 +1,11 @@
 <template>
   <ul>
-    <li v-for="(event, eventId) in events" :key="eventId">
+    <li v-for="event in events" :key="event.id">
       <button
-        :disabled="selectedEventId === eventId"
-        @click="$emit('event-select', eventId)"
+        :disabled="selectedEventId === event.id"
+        @click="$emit('event-select', event.id)"
       >
-        {{ eventId }}
+        {{ event.id }}
       </button>
       {{ event.interactions.length }} interactions
       <!-- TODO Create new sub-event -->
@@ -15,13 +15,13 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue"
-import { EventsList } from "../types"
+import { Event } from "../types"
 
 export default defineComponent({
   name: "EditEventSelect",
   props: {
     events: {
-      type: Object as PropType<EventsList>,
+      type: Object as PropType<Event[]>,
       required: true,
     },
     selectedEventId: {

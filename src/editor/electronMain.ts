@@ -81,4 +81,16 @@ class Main {
   }
 }
 
+// Parse command-line arguments
+export const eventsFilePath = process.argv[2]
+if (!eventsFilePath || !eventsFilePath.endsWith(".json")) {
+  throw new Error("No event file provided")
+}
+console.info(
+  `The events file is`,
+  path.resolve(eventsFilePath),
+  `(${eventsFilePath})`
+)
+
+// Start the Electron app
 new Main().init([new ReadEventsFileChannel(), new WriteEventsFileChannel()])

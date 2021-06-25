@@ -5,12 +5,19 @@
       label="ID"
       @update-value="(value) => update((i) => (i.id = value))"
     ></FieldText>
+    <!-- TODO
+    Create an optional dropdown that is active only when checkbox is
+    unchecked
+    Use default speaker?
+    If false: dropdown for speaker
+    Will probably need to be componentised
     <FieldDropdown
       label="Speaker"
       :value="interaction.speaker"
       category="speakers"
       @update-value="(value) => update((i) => (i.speaker = value))"
     ></FieldDropdown>
+    -->
     <template
       v-for="(_messageGroup, index) in interaction.messages"
       :key="index"

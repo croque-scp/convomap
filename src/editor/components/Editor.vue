@@ -6,7 +6,7 @@
     <p>Changes made to events are automatically saved.</p>
     <p>Pick the event to edit:</p>
     <EditEventSelect
-      :events="events"
+      :events="eventsRegistry.events"
       :selected-event-id="selectedEventId"
       @event-select="changeSelectedEvent"
     ></EditEventSelect>
@@ -23,9 +23,9 @@
 import { defineComponent, reactive } from "vue"
 import EditEventSelect from "./EditEventSelect.vue"
 import EditEvent from "./EditEvent.vue"
-import { Event, EventsList } from "../types"
-import { getEvent } from "../lib/identifier"
-import { createEventsDirProxy } from "../lib/eventsFilesystemProxy"
+import { Event, EventsRegistry } from "../types"
+import { getEvent, setEvent } from "../lib/identifier"
+import { createEventsFileProxy } from "../lib/eventsFilesystemProxy"
 
 export default defineComponent({
   name: "Editor",
@@ -35,9 +35,14 @@ export default defineComponent({
   },
   setup() {
     console.log("Initialising events")
-    let events: EventsList = reactive({})
-    events = createEventsDirProxy(events)
-    return { events }
+    let eventsRegistry: EventsRegistry = reactive({
+      _meta: {
+        _convomap: "Made with Convomap https://github.com/croque-scp/convomap",
+      },
+      events: [],
+    })
+    eventsRegistry = createEventsFileProxy(eventsRegistry)
+    return { eventsRegistry }
   },
   data() {
     return {
@@ -48,7 +53,7 @@ export default defineComponent({
     activeEvent(): Event | null {
       // If the current ID is null, just don't do anything for now
       if (this.selectedEventId === null) return null
-      return getEvent(this.events, this.selectedEventId)
+      return getEvent(this.eventsRegistry, this.selectedEventId)
     },
   },
   methods: {
@@ -74,7 +79,7 @@ export default defineComponent({
         JSON.stringify(newEvent.id)
       )
       if (this.selectedEventId === null) return
-      this.events[this.selectedEventId] = newEvent
+      setEvent(this.eventsRegistry, this.selectedEventId, newEvent)
     },
   },
 })
