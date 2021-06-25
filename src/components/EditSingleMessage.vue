@@ -1,7 +1,7 @@
 <template>$END$</template>
 
 <script lang="ts">
-import { SingleMessage } from "editor/types"
+import { SingleMessage } from "types"
 import { defineComponent } from "vue"
 import { DynamicComponent } from "./dynamicComponents"
 
