@@ -2,18 +2,19 @@
   <main>
     <header>
       <h1>Event Editor</h1>
+      <p>Changes made to events are automatically saved.</p>
+      <p>Pick the event to edit:</p>
+      <EditEventSelect
+        :events="eventsRegistry.events"
+        :selected-event-id="selectedEventId"
+        @event-select="changeSelectedEvent"
+      ></EditEventSelect>
     </header>
-    <p>Changes made to events are automatically saved.</p>
-    <p>Pick the event to edit:</p>
-    <EditEventSelect
-      :events="eventsRegistry.events"
-      :selected-event-id="selectedEventId"
-      @event-select="changeSelectedEvent"
-    ></EditEventSelect>
     <EditEvent
       v-if="selectedEventId !== null && activeEvent !== null"
       :event="activeEvent"
       :event-id="selectedEventId"
+      class="edit-event"
       @update-value="update"
     ></EditEvent>
   </main>
@@ -85,4 +86,22 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+
+  .edit-event {
+    flex-grow: 1;
+    overflow: hidden;
+  }
+}
+</style>
