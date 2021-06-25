@@ -4,8 +4,8 @@ import { Interaction } from "types"
 type Point = { x: number; y: number }
 type Dimensions = { height: number; width: number }
 type Edge = Point[]
-type Node = Point & Dimensions
-type GraphLayout = Dimensions & { edges: Edge[]; nodes: Node[] }
+type Node = Point & Dimensions & { id: string }
+export type GraphLayout = Dimensions & { edges: Edge[]; nodes: Node[] }
 
 /**
  * Creates a directed graph to visually represent an interaction tree.
@@ -59,7 +59,7 @@ export function createInteractionGraph(
     // I want the coords of the top-right corner
     node.x = node.x - node.width / 2
     node.y = node.y - node.height / 2
-    return node
+    return { ...node, id: nodeId }
   })
 
   // Extract edges
