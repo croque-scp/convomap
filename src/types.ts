@@ -226,7 +226,6 @@ export type CanBeConditional =
   | Action
   | InteractionId
   | MessageGroup
-  | Option
 
 /**
  * A delay after which to execute an action.
@@ -267,7 +266,7 @@ export type Interaction = {
   speaker?: string
   // TODO Change 'messages' to 'messageGroups'
   messages: (MessageGroup | Conditional<MessageGroup>)[]
-  options?: (Option | Conditional<Option>)[]
+  options?: Option[]
   fallbackTargetInteraction?: InteractionId
   onStart?: (Action | Conditional<Action>)[]
   onMessagesEnd?: (Action | Conditional<Action>)[]
