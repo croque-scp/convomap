@@ -8,7 +8,7 @@
  *
  * Validation of these identifiers will be performed by the editor.
  */
-export type Identifier = string[]
+export type Identifier = string
 
 /**
  * A unique identifier for a given interaction, which will be referred to by
