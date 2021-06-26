@@ -11,16 +11,27 @@
       @update-value="(value) => update((e) => (e.summary = value))"
     ></FieldText>
     <div class="canvas">
-      <EditInteraction
-        v-for="(interaction, index) in event.interactions"
+      <template
+        v-for="(interaction, interactionIndex) in event.interactions"
         :key="interaction.id"
-        :interaction="interaction"
-        class="interaction"
-        :style="getInteractionLayoutStyle(interaction.id)"
-        @update-value="(i) => update((e) => (e.interactions[index] = i))"
-      ></EditInteraction>
-      <!-- TODO Height and width should not be needed in the above -->
-      <!-- TODO Button for add new interaction -->
+      >
+        <!-- Each interaction is represented as a node -->
+        <EditInteraction
+          :interaction="interaction"
+          class="interaction"
+          :style="getInteractionLayoutStyle(interaction)"
+          @update-value="
+            (i) => update((e) => (e.interactions[interactionIndex] = i))
+          "
+        ></EditInteraction>
+        <!-- Each option is also represented as a node -->
+        <EditOption
+          v-for="(option, optionIndex) in interaction.options"
+          :key="optionIndex"
+          class="option"
+          :style="getInteractionLayoutStyle(interaction, option)"
+        ></EditOption>
+      </template>
     </div>
   </FieldGroup>
 </template>
@@ -28,17 +39,20 @@
 <script lang="ts">
 import { defineComponent, PropType } from "vue"
 import FieldGroup from "./FieldGroup.vue"
-import { Event, InteractionId } from "../types"
+import { Event, Interaction, Option } from "../types"
 import EditInteraction from "./EditInteraction.vue"
+import EditOption from "./EditOption.vue"
 import FieldText from "./FieldText.vue"
 import { createInteractionGraph, GraphLayout } from "../lib/graphLayout"
+import { getOptionId } from "../lib/identifier"
 
 export default defineComponent({
   name: "EditEvent",
   components: {
     FieldText,
-    EditInteraction,
     FieldGroup,
+    EditInteraction,
+    EditOption,
   },
   props: {
     eventId: {
@@ -71,19 +85,26 @@ export default defineComponent({
     /**
      * Retrieves the style for a given node from the interactions layout.
      *
-     * @param id - The ID of the interaction.
+     * @param interaction - The interaction to retrieve the style for.
+     * @param option - If provided, then the option to retrieve the style
+     * for, assuming it is contained within the interaction.
      */
     getInteractionLayoutStyle(
-      interactionId: InteractionId
+      interaction: Interaction,
+      option?: Option
     ): {
       height: string
       width: string
       top: string
       left: string
     } {
+      const searchId = option
+        ? getOptionId(interaction, option)
+        : interaction.id
       const node = this.interactionsLayout.nodes.find(
-        (node) => node.id === interactionId
+        (node) => node.id === searchId
       )
+      // TODO Height and width should not be needed
       const style = node
         ? {
             height: `${node.height}px`,
@@ -121,7 +142,8 @@ export default defineComponent({
   overflow: scroll;
 }
 
-.interaction {
+.interaction,
+.option {
   position: absolute;
 }
 

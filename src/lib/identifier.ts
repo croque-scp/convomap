@@ -1,4 +1,4 @@
-import { Event, EventsRegistry } from "../types"
+import { Event, EventsRegistry, Interaction, Option } from "../types"
 
 /**
  * From an events registry, returns the event with the given id. Throws an error
@@ -54,4 +54,24 @@ export function setEvent(
     return
   }
   eventsRegistry.events[matchingEventIndex] = newEvent
+}
+
+/**
+ * Constructs the pseudo-ID for an option in an interaction.
+ *
+ * Fails if the interaction does not contain the option.
+ *
+ * @param interaction - The interaction that contains this option.
+ * @param option - The option.
+ */
+export function getOptionId(interaction: Interaction, option: Option): string {
+  const optionIndex = interaction.options?.indexOf(option)
+  if (typeof optionIndex !== "number") {
+    throw new Error(
+      `Option with text ${JSON.stringify(
+        option.text
+      )} was not found in interaction with id ${JSON.stringify(interaction.id)}`
+    )
+  }
+  return `${interaction.id}-option-${optionIndex}`
 }

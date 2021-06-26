@@ -1,5 +1,6 @@
 import dagre from "dagre"
 import { Interaction } from "types"
+import { getOptionId } from "./identifier"
 
 type Point = { x: number; y: number }
 type Dimensions = { height: number; width: number }
@@ -32,8 +33,8 @@ export function createInteractionGraph(
       graph.setEdge(interaction.id, interaction.fallbackTargetInteraction)
     }
     // Also iterate the options
-    interaction.options?.forEach((option, index) => {
-      const optionId = `${interaction.id}-option-${index}`
+    interaction.options?.forEach((option) => {
+      const optionId = getOptionId(interaction, option)
       graph.setNode(optionId, {
         width: 300,
         height: 100,
