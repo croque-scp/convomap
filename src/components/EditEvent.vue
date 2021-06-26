@@ -84,15 +84,14 @@ export default defineComponent({
       const node = this.interactionsLayout.nodes.find(
         (node) => node.id === interactionId
       )
-      const style = !node
-        ? { height: "0px", width: "0px", left: "0px", top: "0px" }
-        : {
+      const style = node
+        ? {
             height: `${node.height}px`,
             width: `${node.width}px`,
             left: `${node.x}px`,
             top: `${node.y}px`,
           }
-      console.log(style)
+        : { height: "0px", width: "0px", left: "0px", top: "0px" }
       return style
     },
   },
@@ -116,6 +115,7 @@ export default defineComponent({
       var(--canvas-bg) 0
     );
   background-size: 1rem 1rem;
+  background-attachment: local;
   padding: 1rem; // TODO Remove this when graph has its own padding
   border: calc(var(--canvas-line-width) * 2) solid var(--canvas-line);
   overflow: scroll;
