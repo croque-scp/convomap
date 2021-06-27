@@ -11,27 +11,56 @@
       @update-value="(value) => update((e) => (e.summary = value))"
     ></FieldText>
     <div class="canvas">
-      <template
-        v-for="(interaction, interactionIndex) in event.interactions"
-        :key="interaction.id"
+      <div
+        class="tree"
+        :style="{
+          height: `${interactionsLayout.height}px`,
+          width: `${interactionsLayout.width}px`,
+        }"
       >
-        <!-- Each interaction is represented as a node -->
-        <EditInteraction
-          :interaction="interaction"
-          class="interaction"
-          :style="getInteractionLayoutStyle(interaction)"
-          @update-value="
-            (i) => update((e) => (e.interactions[interactionIndex] = i))
-          "
-        ></EditInteraction>
-        <!-- Each option is also represented as a node -->
-        <EditOption
-          v-for="(option, optionIndex) in interaction.options"
-          :key="optionIndex"
-          class="option"
-          :style="getInteractionLayoutStyle(interaction, option)"
-        ></EditOption>
-      </template>
+        <!-- Arrows between nodes -->
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker
+              id="arrowhead"
+              orient="auto"
+              markerWidth="2"
+              markerHeight="4"
+              refX="0.1"
+              refY="2"
+            >
+              <path d="M0,0 V4 L2,2 Z" />
+            </marker>
+          </defs>
+          <ArrowConnector
+            v-for="(edge, index) in interactionsLayout.edges"
+            :key="index"
+            :points="edge"
+          ></ArrowConnector>
+        </svg>
+        <div
+          v-for="(interaction, interactionIndex) in event.interactions"
+          :key="interaction.id"
+          class="interaction-wrapper"
+        >
+          <!-- Each interaction is represented as a node -->
+          <EditInteraction
+            :interaction="interaction"
+            class="interaction"
+            :style="getInteractionLayoutStyle(interaction)"
+            @update-value="
+              (i) => update((e) => (e.interactions[interactionIndex] = i))
+            "
+          ></EditInteraction>
+          <!-- Each option is also represented as a node -->
+          <EditOption
+            v-for="(option, optionIndex) in interaction.options"
+            :key="optionIndex"
+            class="option"
+            :style="getInteractionLayoutStyle(interaction, option)"
+          ></EditOption>
+        </div>
+      </div>
     </div>
   </FieldGroup>
 </template>
@@ -45,6 +74,7 @@ import EditOption from "./EditOption.vue"
 import FieldText from "./FieldText.vue"
 import { createInteractionGraph, GraphLayout } from "../lib/graphLayout"
 import { getOptionId } from "../lib/identifier"
+import ArrowConnector from "./ArrowConnector.vue"
 
 export default defineComponent({
   name: "EditEvent",
@@ -53,6 +83,7 @@ export default defineComponent({
     FieldGroup,
     EditInteraction,
     EditOption,
+    ArrowConnector,
   },
   props: {
     eventId: {
@@ -124,27 +155,40 @@ export default defineComponent({
   --canvas-bg: hsl(0, 0%, 99%);
   --canvas-line: hsl(200, 50%, 90%);
   --canvas-line-width: 1px;
-  position: relative;
-  background-image: linear-gradient(
-      to bottom,
-      var(--canvas-line) var(--canvas-line-width),
-      transparent 0
-    ),
-    linear-gradient(
-      to right,
-      var(--canvas-line) var(--canvas-line-width),
-      var(--canvas-bg) 0
-    );
-  background-size: 1rem 1rem;
-  background-attachment: local;
-  padding: 1rem; // TODO Remove this when graph has its own padding
   border: calc(var(--canvas-line-width) * 2) solid var(--canvas-line);
   overflow: scroll;
+  // Limit the canvas to be the width of the window minus its parent's
+  // horizontal margins - height is already limited by flex
+  max-width: calc(100vw - 2rem);
+
+  .tree {
+    position: relative;
+    background-image: linear-gradient(
+        to bottom,
+        var(--canvas-line) var(--canvas-line-width),
+        transparent 0
+      ),
+      linear-gradient(
+        to right,
+        var(--canvas-line) var(--canvas-line-width),
+        var(--canvas-bg) 0
+      );
+    background-size: 1rem 1rem;
+    background-attachment: local;
+
+    svg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+  }
 }
 
 .interaction,
 .option {
   position: absolute;
+  box-sizing: border-box;
+  margin: 0 !important; // Override scoped style on FieldGroup
 }
 
 .event-wrapper {

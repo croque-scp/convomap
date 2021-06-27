@@ -4,7 +4,7 @@ import { getOptionId } from "./identifier"
 
 type Point = { x: number; y: number }
 type Dimensions = { height: number; width: number }
-type Edge = Point[]
+export type Edge = Point[]
 type Node = Point & Dimensions & { id: string }
 export type GraphLayout = Dimensions & { edges: Edge[]; nodes: Node[] }
 
@@ -82,4 +82,13 @@ export function createInteractionGraph(
     edges,
     nodes,
   }
+}
+
+/**
+ * Represents a point as numeric coords joined with a comma.
+ *
+ * @param point - The point to transform.
+ */
+export function pointToCoords(point: Point): string {
+  return `${point.x}, ${point.y}`
 }
