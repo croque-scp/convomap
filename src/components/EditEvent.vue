@@ -10,7 +10,7 @@
       label="Summary"
       @update-value="(value) => update((e) => (e.summary = value))"
     ></FieldText>
-    <div class="canvas">
+    <div v-if="interactionsLayout" class="canvas">
       <div
         class="tree"
         :style="{
@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
+import { defineComponent, PropType, ref, watchEffect } from "vue"
 import { Event, Interaction, Option } from "../types"
 import EditInteraction from "./EditInteraction.vue"
 import EditOption from "./EditOption.vue"
@@ -94,12 +94,14 @@ export default defineComponent({
     },
   },
   emits: ["updateValue"],
-  computed: {
-    interactionsLayout(): GraphLayout {
-      const layout = createInteractionGraph(this.event.interactions)
-      console.log(layout)
-      return layout
-    },
+  setup(props) {
+    let interactionsLayout = ref<GraphLayout | null>(null)
+    watchEffect(() => {
+      void createInteractionGraph(props.event.interactions).then(
+        (graphLayout) => (interactionsLayout.value = graphLayout)
+      )
+    })
+    return { interactionsLayout }
   },
   methods: {
     /**
@@ -130,7 +132,7 @@ export default defineComponent({
       const searchId = option
         ? getOptionId(interaction, option)
         : interaction.id
-      const node = this.interactionsLayout.nodes.find(
+      const node = this.interactionsLayout?.nodes.find(
         (node) => node.id === searchId
       )
       // TODO Height and width should not be needed
