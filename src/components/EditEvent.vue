@@ -1,5 +1,5 @@
 <template>
-  <FieldGroup :name="`Event: ${eventId}`" class="event-wrapper">
+  <div class="event-wrapper">
     <FieldText
       :value="event.id"
       label="ID"
@@ -62,12 +62,11 @@
         </div>
       </div>
     </div>
-  </FieldGroup>
+  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue"
-import FieldGroup from "./FieldGroup.vue"
 import { Event, Interaction, Option } from "../types"
 import EditInteraction from "./EditInteraction.vue"
 import EditOption from "./EditOption.vue"
@@ -80,7 +79,6 @@ export default defineComponent({
   name: "EditEvent",
   components: {
     FieldText,
-    FieldGroup,
     EditInteraction,
     EditOption,
     ArrowConnector,
@@ -159,7 +157,7 @@ export default defineComponent({
   overflow: scroll;
   // Limit the canvas to be the width of the window minus its parent's
   // horizontal margins - height is already limited by flex
-  max-width: calc(100vw - 2rem);
+  max-width: calc(100vw - 0);
 
   .tree {
     position: relative;
@@ -194,6 +192,10 @@ export default defineComponent({
 .event-wrapper {
   display: flex;
   flex-direction: column;
+
+  p {
+    margin: 0.5rem;
+  }
 
   .canvas {
     flex-grow: 1;

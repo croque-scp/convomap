@@ -1,9 +1,6 @@
 <template>
   <main>
     <header>
-      <h1>Event Editor</h1>
-      <p>Changes made to events are automatically saved.</p>
-      <p>Pick the event to edit:</p>
       <EditEventSelect
         :events="eventsRegistry.events"
         :selected-event-id="selectedEventId"
