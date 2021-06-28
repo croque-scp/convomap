@@ -32,11 +32,13 @@
               <path d="M0,0 V4 L2,2 Z" />
             </marker>
           </defs>
-          <ArrowConnector
-            v-for="(edge, index) in interactionsLayout.edges"
-            :key="index"
-            :points="edge"
-          ></ArrowConnector>
+          <g stroke-width="2" stroke="black" fill="none">
+            <ArrowConnector
+              v-for="(edge, index) in interactionsLayout.edges"
+              :key="index"
+              :points="edge"
+            ></ArrowConnector>
+          </g>
         </svg>
         <div
           v-for="(interaction, interactionIndex) in event.interactions"

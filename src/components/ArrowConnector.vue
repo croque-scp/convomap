@@ -1,12 +1,5 @@
 <template>
-  <path
-    id="arrow-line"
-    marker-end="url(#head)"
-    stroke-width="5"
-    fill="none"
-    stroke="black"
-    :d="arrowPath"
-  />
+  <path marker-end="url(#arrowhead)" :d="arrowPath" />
 </template>
 
 <script lang="ts">
