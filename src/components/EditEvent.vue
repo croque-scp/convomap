@@ -130,8 +130,6 @@ export default defineComponent({
       interaction: Interaction,
       option?: Option
     ): {
-      height: string
-      width: string
       top: string
       left: string
     } {
@@ -141,15 +139,9 @@ export default defineComponent({
       const node = this.interactionsLayout?.nodes.find(
         (node) => node.id === searchId
       )
-      // TODO Height and width should not be needed
       const style = node
-        ? {
-            height: `${node.height}px`,
-            width: `${node.width}px`,
-            left: `${node.x}px`,
-            top: `${node.y}px`,
-          }
-        : { height: "0px", width: "0px", left: "0px", top: "0px" }
+        ? { left: `${node.x}px`, top: `${node.y}px` }
+        : { left: "0px", top: "0px" }
       return style
     },
   },
