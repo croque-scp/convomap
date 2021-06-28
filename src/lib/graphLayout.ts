@@ -71,6 +71,7 @@ export async function createInteractionGraph(
       "elk.layered.spacing.edgeNodeBetweenLayers": "30", // Above arrow
       // Increase spacing between nodes in same layer
       "elk.spacing.nodeNode": "40",
+      "elk.edgeRouting": "SPLINE",
     },
     children: elkChildren,
     edges: elkEdges.map((edge, index) => {
@@ -109,13 +110,4 @@ export async function createInteractionGraph(
     edges,
     nodes,
   }
-}
-
-/**
- * Represents a point as numeric coords joined with a comma.
- *
- * @param point - The point to transform.
- */
-export function pointToCoords(point: Point): string {
-  return `${point.x}, ${point.y}`
 }
