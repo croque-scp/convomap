@@ -10,7 +10,7 @@
       label="Summary"
       @update-value="(value) => update((e) => (e.summary = value))"
     ></FieldText>
-    <div class="canvas">
+    <div v-if="interactionsLayout" class="canvas">
       <div
         class="tree"
         :style="{
@@ -66,7 +66,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
+import { defineComponent, PropType, ref, watchEffect } from "vue"
 import { Event, Interaction, Option } from "../types"
 import EditInteraction from "./EditInteraction.vue"
 import EditOption from "./EditOption.vue"
@@ -94,12 +94,14 @@ export default defineComponent({
     },
   },
   emits: ["updateValue"],
-  computed: {
-    interactionsLayout(): GraphLayout {
-      const layout = createInteractionGraph(this.event.interactions)
-      console.log(layout)
-      return layout
-    },
+  setup(props) {
+    let interactionsLayout = ref<GraphLayout | null>(null)
+    watchEffect(() => {
+      void createInteractionGraph(props.event.interactions).then(
+        (graphLayout) => (interactionsLayout.value = graphLayout)
+      )
+    })
+    return { interactionsLayout }
   },
   methods: {
     /**
@@ -130,7 +132,7 @@ export default defineComponent({
       const searchId = option
         ? getOptionId(interaction, option)
         : interaction.id
-      const node = this.interactionsLayout.nodes.find(
+      const node = this.interactionsLayout?.nodes.find(
         (node) => node.id === searchId
       )
       // TODO Height and width should not be needed
@@ -154,25 +156,26 @@ export default defineComponent({
   --canvas-line: hsl(200, 50%, 90%);
   --canvas-line-width: 1px;
   border: calc(var(--canvas-line-width) * 2) solid var(--canvas-line);
+  background-image: linear-gradient(
+      to bottom,
+      var(--canvas-line) var(--canvas-line-width),
+      transparent 0
+    ),
+    linear-gradient(
+      to right,
+      var(--canvas-line) var(--canvas-line-width),
+      var(--canvas-bg) 0
+    );
+  background-size: 1rem 1rem;
+  background-attachment: local;
   overflow: scroll;
   // Limit the canvas to be the width of the window minus its parent's
   // horizontal margins - height is already limited by flex
   max-width: calc(100vw - 0);
+  min-width: calc(100%);
 
   .tree {
     position: relative;
-    background-image: linear-gradient(
-        to bottom,
-        var(--canvas-line) var(--canvas-line-width),
-        transparent 0
-      ),
-      linear-gradient(
-        to right,
-        var(--canvas-line) var(--canvas-line-width),
-        var(--canvas-bg) 0
-      );
-    background-size: 1rem 1rem;
-    background-attachment: local;
 
     svg {
       position: absolute;

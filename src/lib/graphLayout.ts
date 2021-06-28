@@ -1,4 +1,6 @@
-import dagre from "dagre"
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
+import ELK, { ElkExtendedEdge, ElkNode } from "elkjs/lib/elk.bundled"
 import { Interaction } from "types"
 import { getOptionId } from "./identifier"
 
@@ -13,68 +15,90 @@ export type GraphLayout = Dimensions & { edges: Edge[]; nodes: Node[] }
  *
  * @param interactions - The list of interactions to render.
  */
-export function createInteractionGraph(
+export async function createInteractionGraph(
   interactions: Interaction[]
-): GraphLayout {
-  const graph = new dagre.graphlib.Graph()
-  graph.setGraph({})
+): Promise<GraphLayout> {
+  const elk = new ELK()
 
-  // No labels on this graph
-  graph.setDefaultEdgeLabel(() => ({}))
-  graph.setDefaultNodeLabel(() => ({}))
+  const elkChildren: ElkNode[] = []
+  const elkEdges: { source: string; target: string }[] = []
 
   // Iterate through interactions to render them
   interactions.forEach((interaction) => {
     // Just use a default width and height for now
     // TODO Get width and height from HTML
-    graph.setNode(interaction.id, { width: 300, height: 300 })
+    elkChildren.push({ id: interaction.id, width: 300, height: 300 })
     if (interaction.fallbackTargetInteraction) {
       // Connect this interaction and its fallback, if any
-      graph.setEdge(interaction.id, interaction.fallbackTargetInteraction)
+      elkEdges.push({
+        source: interaction.id,
+        target: interaction.fallbackTargetInteraction,
+      })
     }
     // Also iterate the options
     interaction.options?.forEach((option) => {
       const optionId = getOptionId(interaction, option)
-      graph.setNode(optionId, {
-        width: 300,
-        height: 100,
-      })
+      elkChildren.push({ id: optionId, width: 300, height: 100 })
       // Connect this option and its parent interaction
-      graph.setEdge(interaction.id, optionId)
+      elkEdges.push({ source: interaction.id, target: optionId })
       // Connect this option and its target interaction
       // The target interaction can be Conditional, which must be resolved
       // TODO Resolve conditional target interaction
       if (typeof option.targetInteraction === "string") {
-        graph.setEdge(optionId, option.targetInteraction)
+        elkEdges.push({ source: optionId, target: option.targetInteraction })
       }
     })
   })
+  console.log(elk.knownLayoutOptions())
 
   // Generate the graph
-  dagre.layout(graph)
+  const graph = await elk.layout({
+    id: "root",
+    layoutOptions: {
+      "elk.algorithm": "layered",
+      "elk.direction": "DOWN",
+      // Network simplex strategy looks cleaner for dialogue tree
+      "elk.layered.nodePlacement.strategy": "NETWORK_SIMPLEX",
+      // Combine arrows between nodes to single multi-arrow
+      "elk.layered.mergeEdges": "true",
+      // Increase spacing between node layers
+      "elk.layered.spacing.nodeNodeBetweenLayers": "30", // Below arrow
+      "elk.layered.spacing.edgeNodeBetweenLayers": "30", // Above arrow
+      // Increase spacing between nodes in same layer
+      "elk.spacing.nodeNode": "40",
+    },
+    children: elkChildren,
+    edges: elkEdges.map((edge, index) => {
+      return {
+        id: `e${index}`,
+        sources: [edge.source],
+        targets: [edge.target],
+      }
+    }),
+  })
+
+  console.log(graph)
 
   // Extract nodes
-  const nodes = graph.nodes().map((nodeId) => {
-    const node = graph.node(nodeId)
-    // The coords of each node are at their centre, but for CSS positioning
-    // I want the coords of the top-right corner
-    node.x = node.x - node.width / 2
-    node.y = node.y - node.height / 2
-    return { ...node, id: nodeId }
+  const nodes = graph.children!.map((node) => {
+    return {
+      id: node.id,
+      x: node.x!,
+      y: node.y!,
+      height: node.height!,
+      width: node.width!,
+    }
   })
 
   // Extract edges
-  const edges = graph.edges().map((edgeId) => {
-    const edge = graph.edge(edgeId)
-    return edge.points
+  const edges = (<ElkExtendedEdge[]>graph.edges).map((edge) => {
+    const section = edge.sections[0]
+    return [section.startPoint, ...(section.bendPoints ?? []), section.endPoint]
   })
 
   // Extract the graph itself
-  // The graph has been calculated, so assert that it has the properties we
-  // want
-  const graphInfo = <Dimensions>graph.graph()
-  const height = graphInfo.height
-  const width = graphInfo.width
+  const height = graph.height!
+  const width = graph.width!
 
   return {
     height,
