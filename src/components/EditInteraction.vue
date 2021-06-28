@@ -141,4 +141,14 @@ export default defineComponent({
 })
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+fieldset {
+  background-color: white;
+
+  label {
+    background-color: white;
+  }
+
+  overflow: hidden; // XXX Temporary for testing
+}
+</style>
