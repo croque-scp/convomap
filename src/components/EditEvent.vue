@@ -10,16 +10,20 @@
       label="Summary"
       @update-value="(value) => update((e) => (e.summary = value))"
     ></FieldText>
-    <div v-if="interactionsLayout" class="canvas">
+    <div class="canvas">
       <div
         class="tree"
-        :style="{
-          height: `${interactionsLayout.height}px`,
-          width: `${interactionsLayout.width}px`,
-        }"
+        :style="
+          interactionsLayout
+            ? {
+                height: `${interactionsLayout.height}px`,
+                width: `${interactionsLayout.width}px`,
+              }
+            : { opacity: '0' }
+        "
       >
         <!-- Arrows between nodes -->
-        <svg xmlns="http://www.w3.org/2000/svg">
+        <svg v-if="interactionsLayout" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <marker
               id="arrowhead"
@@ -50,6 +54,7 @@
             :interaction="interaction"
             class="interaction"
             :style="getInteractionLayoutStyle(interaction)"
+            :data-node-id="interaction.id"
             @update-value="
               (i) => update((e) => (e.interactions[interactionIndex] = i))
             "
@@ -60,6 +65,7 @@
             :key="optionIndex"
             class="option"
             :style="getInteractionLayoutStyle(interaction, option)"
+            :data-node-id="getOptionId(interaction, option)"
           ></EditOption>
         </div>
       </div>
@@ -68,7 +74,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watchEffect } from "vue"
+import {
+  defineComponent,
+  PropType,
+  ref,
+  watchEffect,
+  onMounted,
+  nextTick,
+} from "vue"
 import { Event, Interaction, Option } from "../types"
 import EditInteraction from "./EditInteraction.vue"
 import EditOption from "./EditOption.vue"
@@ -98,12 +111,31 @@ export default defineComponent({
   emits: ["updateValue"],
   setup(props) {
     let interactionsLayout = ref<GraphLayout | null>(null)
-    watchEffect(() => {
-      void createInteractionGraph(props.event.interactions).then(
-        (graphLayout) => (interactionsLayout.value = graphLayout)
-      )
+    onMounted(() => {
+      void nextTick(() => {
+        watchEffect(() => {
+          // Get dimensions of each element
+          const dimensions = Array.from(
+            document.querySelectorAll<HTMLElement>(".interaction, .option")
+          ).reduce((dimensions, element) => {
+            if (!element.dataset.nodeId) return dimensions
+            return {
+              ...dimensions,
+              [element.dataset.nodeId]: {
+                height: element.offsetHeight,
+                width: element.offsetWidth,
+              },
+            }
+          }, {})
+          // Construct the interactions graph
+          void createInteractionGraph(
+            props.event.interactions,
+            dimensions
+          ).then((graphLayout) => (interactionsLayout.value = graphLayout))
+        })
+      })
     })
-    return { interactionsLayout }
+    return { interactionsLayout, getOptionId }
   },
   methods: {
     /**
@@ -126,8 +158,6 @@ export default defineComponent({
       interaction: Interaction,
       option?: Option
     ): {
-      height: string
-      width: string
       top: string
       left: string
     } {
@@ -137,15 +167,9 @@ export default defineComponent({
       const node = this.interactionsLayout?.nodes.find(
         (node) => node.id === searchId
       )
-      // TODO Height and width should not be needed
       const style = node
-        ? {
-            height: `${node.height}px`,
-            width: `${node.width}px`,
-            left: `${node.x}px`,
-            top: `${node.y}px`,
-          }
-        : { height: "0px", width: "0px", left: "0px", top: "0px" }
+        ? { left: `${node.x}px`, top: `${node.y}px` }
+        : { left: "0px", top: "0px" }
       return style
     },
   },
@@ -178,6 +202,7 @@ export default defineComponent({
 
   .tree {
     position: relative;
+    transition: opacity 0.3s ease;
 
     svg {
       position: absolute;

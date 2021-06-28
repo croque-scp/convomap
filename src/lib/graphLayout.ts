@@ -14,9 +14,13 @@ export type GraphLayout = Dimensions & { edges: Edge[]; nodes: Node[] }
  * Creates a directed graph to visually represent an interaction tree.
  *
  * @param interactions - The list of interactions to render.
+ * @param dimensions - An object containing the dimensions of each node to
+ * render. Keys of the object are the IDs of each node, and there must be
+ * an entry for every node.
  */
 export async function createInteractionGraph(
-  interactions: Interaction[]
+  interactions: Interaction[],
+  dimensions: Record<string, Dimensions>
 ): Promise<GraphLayout> {
   const elk = new ELK()
 
@@ -25,9 +29,9 @@ export async function createInteractionGraph(
 
   // Iterate through interactions to render them
   interactions.forEach((interaction) => {
-    // Just use a default width and height for now
-    // TODO Get width and height from HTML
-    elkChildren.push({ id: interaction.id, width: 300, height: 300 })
+    const iDims = dimensions[interaction.id]
+    if (!iDims) throw new Error(`Missing dimensions for ${interaction.id}`)
+    elkChildren.push({ id: interaction.id, ...iDims })
     if (interaction.fallbackTargetInteraction) {
       // Connect this interaction and its fallback, if any
       elkEdges.push({
@@ -38,7 +42,9 @@ export async function createInteractionGraph(
     // Also iterate the options
     interaction.options?.forEach((option) => {
       const optionId = getOptionId(interaction, option)
-      elkChildren.push({ id: optionId, width: 300, height: 100 })
+      const oDims = dimensions[optionId]
+      if (!oDims) throw new Error(`Missing dimensions for ${optionId}`)
+      elkChildren.push({ id: optionId, ...oDims })
       // Connect this option and its parent interaction
       elkEdges.push({ source: interaction.id, target: optionId })
       // Connect this option and its target interaction
@@ -49,7 +55,6 @@ export async function createInteractionGraph(
       }
     })
   })
-  console.log(elk.knownLayoutOptions())
 
   // Generate the graph
   const graph = await elk.layout({
@@ -76,8 +81,6 @@ export async function createInteractionGraph(
       }
     }),
   })
-
-  console.log(graph)
 
   // Extract nodes
   const nodes = graph.children!.map((node) => {
