@@ -54,6 +54,7 @@
             :interaction="interaction"
             class="interaction"
             :style="getInteractionLayoutStyle(interaction)"
+            :data-node-id="interaction.id"
             @update-value="
               (i) => update((e) => (e.interactions[interactionIndex] = i))
             "
@@ -64,6 +65,7 @@
             :key="optionIndex"
             class="option"
             :style="getInteractionLayoutStyle(interaction, option)"
+            :data-node-id="getOptionId(interaction, option)"
           ></EditOption>
         </div>
       </div>
