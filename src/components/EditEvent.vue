@@ -74,7 +74,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, watchEffect } from "vue"
+import {
+  defineComponent,
+  PropType,
+  ref,
+  watchEffect,
+  onMounted,
+  nextTick,
+} from "vue"
 import { Event, Interaction, Option } from "../types"
 import EditInteraction from "./EditInteraction.vue"
 import EditOption from "./EditOption.vue"
@@ -104,12 +111,31 @@ export default defineComponent({
   emits: ["updateValue"],
   setup(props) {
     let interactionsLayout = ref<GraphLayout | null>(null)
-    watchEffect(() => {
-      void createInteractionGraph(props.event.interactions).then(
-        (graphLayout) => (interactionsLayout.value = graphLayout)
-      )
+    onMounted(() => {
+      void nextTick(() => {
+        watchEffect(() => {
+          // Get dimensions of each element
+          const dimensions = Array.from(
+            document.querySelectorAll<HTMLElement>(".interaction, .option")
+          ).reduce((dimensions, element) => {
+            if (!element.dataset.nodeId) return dimensions
+            return {
+              ...dimensions,
+              [element.dataset.nodeId]: {
+                height: element.offsetHeight,
+                width: element.offsetWidth,
+              },
+            }
+          }, {})
+          // Construct the interactions graph
+          void createInteractionGraph(
+            props.event.interactions,
+            dimensions
+          ).then((graphLayout) => (interactionsLayout.value = graphLayout))
+        })
+      })
     })
-    return { interactionsLayout }
+    return { interactionsLayout, getOptionId }
   },
   methods: {
     /**
