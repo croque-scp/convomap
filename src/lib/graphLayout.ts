@@ -49,6 +49,7 @@ export async function createInteractionGraph(
       }
     })
   })
+  console.log(elk.knownLayoutOptions())
 
   // Generate the graph
   const graph = await elk.layout({
@@ -56,7 +57,15 @@ export async function createInteractionGraph(
     layoutOptions: {
       "elk.algorithm": "layered",
       "elk.direction": "DOWN",
+      // Network simplex strategy looks cleaner for dialogue tree
       "elk.layered.nodePlacement.strategy": "NETWORK_SIMPLEX",
+      // Combine arrows between nodes to single multi-arrow
+      "elk.layered.mergeEdges": "true",
+      // Increase spacing between node layers
+      "elk.layered.spacing.nodeNodeBetweenLayers": "30", // Below arrow
+      "elk.layered.spacing.edgeNodeBetweenLayers": "30", // Above arrow
+      // Increase spacing between nodes in same layer
+      "elk.spacing.nodeNode": "40",
     },
     children: elkChildren,
     edges: elkEdges.map((edge, index) => {
@@ -72,12 +81,8 @@ export async function createInteractionGraph(
 
   // Extract nodes
   const nodes = graph.children!.map((node) => {
-    // The coords of each node are at their centre, but for CSS positioning
-    // I want the coords of the top-right corner
     return {
       id: node.id,
-      // x: node.x! - node.width! / 2,
-      // y: node.y! - node.height! / 2,
       x: node.x!,
       y: node.y!,
       height: node.height!,
