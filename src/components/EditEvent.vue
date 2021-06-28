@@ -10,16 +10,20 @@
       label="Summary"
       @update-value="(value) => update((e) => (e.summary = value))"
     ></FieldText>
-    <div v-if="interactionsLayout" class="canvas">
+    <div class="canvas">
       <div
         class="tree"
-        :style="{
-          height: `${interactionsLayout.height}px`,
-          width: `${interactionsLayout.width}px`,
-        }"
+        :style="
+          interactionsLayout
+            ? {
+                height: `${interactionsLayout.height}px`,
+                width: `${interactionsLayout.width}px`,
+              }
+            : { opacity: '0' }
+        "
       >
         <!-- Arrows between nodes -->
-        <svg xmlns="http://www.w3.org/2000/svg">
+        <svg v-if="interactionsLayout" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <marker
               id="arrowhead"
@@ -178,6 +182,7 @@ export default defineComponent({
 
   .tree {
     position: relative;
+    transition: opacity 0.3s ease;
 
     svg {
       position: absolute;
