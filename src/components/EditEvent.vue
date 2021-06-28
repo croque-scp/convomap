@@ -156,25 +156,26 @@ export default defineComponent({
   --canvas-line: hsl(200, 50%, 90%);
   --canvas-line-width: 1px;
   border: calc(var(--canvas-line-width) * 2) solid var(--canvas-line);
+  background-image: linear-gradient(
+      to bottom,
+      var(--canvas-line) var(--canvas-line-width),
+      transparent 0
+    ),
+    linear-gradient(
+      to right,
+      var(--canvas-line) var(--canvas-line-width),
+      var(--canvas-bg) 0
+    );
+  background-size: 1rem 1rem;
+  background-attachment: local;
   overflow: scroll;
   // Limit the canvas to be the width of the window minus its parent's
   // horizontal margins - height is already limited by flex
   max-width: calc(100vw - 0);
+  min-width: calc(100%);
 
   .tree {
     position: relative;
-    background-image: linear-gradient(
-        to bottom,
-        var(--canvas-line) var(--canvas-line-width),
-        transparent 0
-      ),
-      linear-gradient(
-        to right,
-        var(--canvas-line) var(--canvas-line-width),
-        var(--canvas-bg) 0
-      );
-    background-size: 1rem 1rem;
-    background-attachment: local;
 
     svg {
       position: absolute;
