@@ -1,3 +1,5 @@
+import { Modifier } from "./lib/modifiers"
+
 /**
  * A generic identifier.
  *
@@ -67,20 +69,13 @@ export type SingleMessage = {
  * which are executed for the message group but do not affect the messages
  * it contains.
  *
- * @property speaker - The character who will be saying this message.
- * @property speakerModifier - Some modifier to apply to the message. Each
- * speaker is expected to have its own accepted set of modifiers.
  * @property displayIf - The message or group will be ignored unless these
  * conditions pass.
- * @property modifier - General modifiers that are not character-specific.
- * @property class - Straight-up just CSS class names to pass to the final
- * message. TODO Deprecate in favour of something implementation-agnostic
+ * @property modifiers - Modifiers to apply to this message or message group.
  */
 export type MessageSettings = {
-  speakerModifier?: string[]
-  speaker?: string
   displayIf?: Condition[]
-  modifier?: string[]
+  modifiers?: Modifier[]
 }
 
 /**
@@ -115,8 +110,7 @@ export type MessageTimingControl = {
  * interaction. This can be used to have the player character say things
  * relating to their choice. The default speaker is the player. Prefer
  * putting messages into their own interactions.
- * @property optionModifier - A modifier to be passed to the implementation.
- * TODO Where are option modifiers declared?
+ * @property modifiers - Modifiers for this option.
  */
 export type Option = {
   text: string
@@ -124,7 +118,7 @@ export type Option = {
   displayIf?: Condition[]
   onSelect?: (Action | Conditional<Action>)[]
   messages?: (MessageGroup | Conditional<MessageGroup>)[]
-  optionModifier?: string
+  modifiers?: Modifier[]
 }
 
 /**
@@ -260,6 +254,7 @@ export type Delay = {
  * @property onEnd - An action to be executed after the options are shown.
  * @property onMessagesEnd - An action to be executed after the messages are
  * shown but before the options are shown.
+ * @property modifiers - Modifiers for this interaction.
  */
 export type Interaction = {
   id: string
@@ -271,6 +266,7 @@ export type Interaction = {
   onStart?: (Action | Conditional<Action>)[]
   onMessagesEnd?: (Action | Conditional<Action>)[]
   onEnd?: (Action | Conditional<Action>)[]
+  modifiers?: Modifier[]
 }
 
 /**
@@ -292,9 +288,10 @@ export type Interaction = {
 export type Event = {
   id: string
   summary: string
+  interactions: Interaction[]
   defaultSpeaker?: string
   defaultOptionModifier?: string
-  interactions: Interaction[]
+  modifiers?: Modifier[]
 }
 
 /**
