@@ -1,7 +1,6 @@
 -- A condition is a series of condition terms
 CREATE TABLE conditions (
-  id INTEGER PRIMARY KEY,
-  stringSource TEXT
+  id INTEGER PRIMARY KEY
 );
 
 -- A condition term is either a single boolean condition or an operator
@@ -11,6 +10,7 @@ CREATE TABLE conditionTerms (
   sortIndex INTEGER NOT NULL,
   operator TEXT, -- and, or, not, ever
   conditionFunctionId INTEGER REFERENCES conditionFunctions (id),
+  -- TODO How are arguments stored?
   CHECK ((
     (operator IS NOT NULL) +
     (conditionFunctionId IS NOT NULL)
