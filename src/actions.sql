@@ -31,3 +31,15 @@ CREATE TABLE actionFunctionArgumentTypes (
   sortIndex INTEGER NOT NULL,
   UNIQUE (actionFunctionId, sortIndex)
 );
+
+-- Arguments that have been passed to individual action terms
+-- Validation is the responsibility of the runtime
+CREATE TABLE actionTermFunctionArguments (
+  actionTermId INTEGER NOT NULL,
+  actionFunctionId INTEGER NOT NULL,
+  FOREIGN KEY (actionTermId, actionFunctionId)
+    REFERENCES actionTerms (id, actionFunctionId),
+  sortIndex INTEGER NOT NULL,
+  UNIQUE (actionTermId, actionFunctionId, sortIndex)
+  -- TODO Somehow indicate the value of the argument
+);

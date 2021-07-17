@@ -38,3 +38,15 @@ CREATE TABLE conditionFunctionArgumentTypes (
   sortIndex INTEGER NOT NULL,
   UNIQUE (conditionFunctionId, sortIndex)
 );
+
+-- Arguments that have been passed to individual condition function terms
+-- Validation is the responsibility of the runtime
+CREATE TABLE conditionTermFunctionArguments (
+  conditionTermId INTEGER NOT NULL,
+  conditionFunctionId INTEGER NOT NULL,
+  FOREIGN KEY (conditionTermId, conditionFunctionId)
+    REFERENCES conditionTerms (id, conditionFunctionId),
+  sortIndex INTEGER NOT NULL,
+  UNIQUE (conditionTermId, conditionFunctionId, sortIndex)
+  -- TODO Somehow indicate the value of the argument
+);
