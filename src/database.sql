@@ -15,6 +15,7 @@ CREATE TABLE interactions (
 CREATE TABLE options (
   -- Text of the option is kept in the strings table
   id INTEGER PRIMARY KEY,
+  conditionId INTEGER NOT NULL REFERENCES conditions (id),
   interactionId INTEGER NOT NULL REFERENCES interactions (id),
   targetInteractionId INTEGER REFERENCES interactions (id),
   sortIndex INTEGER NOT NULL,
@@ -24,6 +25,7 @@ CREATE TABLE options (
 CREATE TABLE modifiers (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
+  -- appliesTo?
   UNIQUE (name COLLATE NOCASE)
 );
 
@@ -50,7 +52,10 @@ CREATE TABLE messageGroups (
   id INTEGER PRIMARY KEY,
   interactionId INTEGER NOT NULL REFERENCES interactions (id),
   sortIndex INTEGER NOT NULL,
-  UNIQUE (interactionId, sortIndex)
+  conditionId INTEGER REFERENCES conditions (id),
+  UNIQUE (interactionId, sortIndex),
+  -- Quick conditional validity check - must always start with ELSE
+  CHECK (conditionId IS NULL OR NOT sortIndex = 0)
 );
 
 CREATE TABLE messages (
@@ -58,7 +63,10 @@ CREATE TABLE messages (
   id INTEGER PRIMARY KEY,
   messageGroupId INTEGER NOT NULL REFERENCES messageGroups (id),
   sortIndex INTEGER NOT NULL,
-  UNIQUE (messageGroupId, sortIndex)
+  conditionId INTEGER REFERENCES conditions (id),
+  UNIQUE (messageGroupId, sortIndex),
+  -- Quick conditional validity check - must always start with ELSE
+  CHECK (conditionId IS NULL OR NOT sortIndex = 0)
 );
 
 -- All translatable strings are kept in the strings table.
