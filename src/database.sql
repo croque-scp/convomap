@@ -18,8 +18,8 @@ CREATE TABLE interactions (
 CREATE TABLE options (
   -- Text of the option is kept in the strings table
   id INTEGER PRIMARY KEY,
-  conditionId INTEGER NOT NULL REFERENCES conditions (id),
   interactionId INTEGER NOT NULL REFERENCES interactions (id),
+  conditionId INTEGER REFERENCES conditions (id),
   targetInteractionId INTEGER REFERENCES interactions (id),
   sortIndex INTEGER NOT NULL,
   UNIQUE (interactionId, sortIndex)
@@ -56,6 +56,7 @@ CREATE TABLE messageGroups (
   interactionId INTEGER NOT NULL REFERENCES interactions (id),
   sortIndex INTEGER NOT NULL,
   conditionId INTEGER REFERENCES conditions (id),
+  conditionalRootId INTEGER NOT NULL REFERENCES messageGroups (id),
   UNIQUE (interactionId, sortIndex),
   -- Quick conditional validity check - must always start with ELSE
   CHECK (conditionId IS NULL OR NOT sortIndex = 0)
@@ -67,6 +68,7 @@ CREATE TABLE messages (
   messageGroupId INTEGER NOT NULL REFERENCES messageGroups (id),
   sortIndex INTEGER NOT NULL,
   conditionId INTEGER REFERENCES conditions (id),
+  conditionalRootId INTEGER NOT NULL REFERENCES messages (id),
   UNIQUE (messageGroupId, sortIndex),
   -- Quick conditional validity check - must always start with ELSE
   CHECK (conditionId IS NULL OR NOT sortIndex = 0)
