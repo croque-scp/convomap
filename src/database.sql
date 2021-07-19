@@ -59,7 +59,8 @@ CREATE TABLE messageGroups (
   conditionalRootId INTEGER NOT NULL REFERENCES messageGroups (id),
   UNIQUE (interactionId, sortIndex),
   -- Quick conditional validity check - must always start with ELSE
-  CHECK (conditionId IS NULL OR NOT sortIndex = 0)
+  CHECK (sortIndex != 0 OR conditionId IS NULL),
+  CHECK ((sortIndex != 0) != (conditionalRootId = id))
 );
 
 CREATE TABLE messages (
@@ -71,7 +72,8 @@ CREATE TABLE messages (
   conditionalRootId INTEGER NOT NULL REFERENCES messages (id),
   UNIQUE (messageGroupId, sortIndex),
   -- Quick conditional validity check - must always start with ELSE
-  CHECK (conditionId IS NULL OR NOT sortIndex = 0)
+  CHECK (conditionId IS NULL OR NOT sortIndex = 0),
+  CHECK ((sortIndex != 0) != (conditionalRootId = id))
 );
 
 -- All translatable strings are kept in the strings table.
