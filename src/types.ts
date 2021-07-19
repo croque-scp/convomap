@@ -1,20 +1,32 @@
 /**
  * All structural types defined by Convomap are prefixed with 'CM' to avoid
- * ambiguity with pre-exisitng types with similar names (e.g. Event, String).
+ * ambiguity with pre-existng types with similar names (e.g. Event, String).
  */
 
 /**
  * The main events object.
  *
  * @property _meta - Meta information about the story.
- * @property events - The list of events i.e. interaction groupings
- * @property interactions - List of interactions
- * @property options - List of options that result from interactions
- * @property modifiers - List of modifiers that can be applied to other objects
- * @property modifications - Relationships between modifiers and other objects
- * @property messageGroups - Groups of messages to collate configuration
- * @property messages - List of messages to be used in message groups
- * @property strings - List of translatable strings to be used in the story
+ * @property events - Events i.e. interaction groupings.
+ * @property interactions - Interactions (messages followed by options).
+ * @property options - Options that result from interactions.
+ * @property modifiers - Modifiers that can be applied to other objects.
+ * @property modifications - Relationships between modifiers and other objects.
+ * @property messageGroups - Groups of messages to collate configuration.
+ * @property messages - Messages to be used in message groups.
+ * @property strings - Translatable strings to be used in the story.
+ *
+ * @property actions - Executable action registrations.
+ * @property actionTerms - The action functions assigned to each action.
+ * @property actionFunctions - User-defined action functions.
+ * @property actionFunctionArgumentTypes - Action function type declarations.
+ * @property actionTermFunctionArguments - Arguments passed to actions.
+ *
+ * @property conditions - Condition registrations.
+ * @property conditionTerms - Condition functions assigned to each condition.
+ * @property conditionFunctions - User-defined condition functions.
+ * @property conditionFunctionArgumentTypes - Condition type declarations.
+ * @property conditionTermFunctionArguments - Arguments passed to conditions.
  */
 export type CMStory = {
   _meta: CMMeta
