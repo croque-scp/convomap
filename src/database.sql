@@ -9,6 +9,9 @@ CREATE TABLE interactions (
   id INTEGER PRIMARY KEY,
   eventId INTEGER NOT NULL REFERENCES events (id),
   name TEXT NOT NULL,
+  onStartActionId INTEGER REFERENCES actions (id),
+  onMessagesEndActionId INTEGER REFERENCES actions (id),
+  onEndActionId INTEGER REFERENCES actions (id),
   UNIQUE (eventId, name COLLATE NOCASE)
 );
 
