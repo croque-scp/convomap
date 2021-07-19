@@ -28,7 +28,10 @@ CREATE TABLE options (
 CREATE TABLE modifiers (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
-  -- appliesTo?
+  appliesToEvent BOOLEAN NOT NULL,
+  appliesToInteraction BOOLEAN NOT NULL,
+  appliesToOption BOOLEAN NOT NULL,
+  appliesToMessageGroup BOOLEAN NOT NULL,
   UNIQUE (name COLLATE NOCASE)
 );
 
@@ -54,6 +57,7 @@ CREATE TABLE modifications (
 CREATE TABLE messageGroups (
   id INTEGER PRIMARY KEY,
   interactionId INTEGER NOT NULL REFERENCES interactions (id),
+  onDisplayActionId INTEGER REFERENCES actions (id),
   sortIndex INTEGER NOT NULL,
   conditionId INTEGER REFERENCES conditions (id),
   conditionalRootId INTEGER NOT NULL REFERENCES messageGroups (id),
@@ -67,6 +71,7 @@ CREATE TABLE messages (
   -- Text of the message is kept in the strings table
   id INTEGER PRIMARY KEY,
   messageGroupId INTEGER NOT NULL REFERENCES messageGroups (id),
+  onDisplayActionId INTEGER REFERENCES actions (id),
   sortIndex INTEGER NOT NULL,
   conditionId INTEGER REFERENCES conditions (id),
   conditionalRootId INTEGER NOT NULL REFERENCES messages (id),

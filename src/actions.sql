@@ -7,10 +7,14 @@ CREATE TABLE actions (
 CREATE TABLE actionTerms (
   id INTEGER PRIMARY KEY,
   actionId INTEGER NOT NULL REFERENCES actions (id),
+  actionFunctionId INTEGER NOT NULL REFERENCES actionFunctions (id),
   sortIndex INTEGER NOT NULL,
   conditionId INTEGER REFERENCES conditions (id),
-  actionFunctionId INTEGER NOT NULL REFERENCES actionFunctions (id),
-  UNIQUE (actionId, sortIndex)
+  conditionalRootId INTEGER NOT NULL REFERENCES messageGroups (id),
+  UNIQUE (actionId, sortIndex),
+  -- Quick conditional validity check - must always start with ELSE
+  CHECK (sortIndex != 0 OR conditionId IS NULL),
+  CHECK ((sortIndex != 0) != (conditionalRootId = id))
 );
 
 -- Custom action functions defined by the user
@@ -26,6 +30,7 @@ CREATE TABLE actionFunctions (
 CREATE TABLE actionFunctionArgumentTypes (
   actionFunctionId INTEGER NOT NULL REFERENCES actionFunctions (id),
   name TEXT NOT NULL,
+  summary TEXT NOT NULL,
   type TEXT NOT NULL, -- string, number, interaction, null?
   optional BOOLEAN NOT NULL,
   sortIndex INTEGER NOT NULL,
@@ -35,11 +40,8 @@ CREATE TABLE actionFunctionArgumentTypes (
 -- Arguments that have been passed to individual action terms
 -- Validation is the responsibility of the runtime
 CREATE TABLE actionTermFunctionArguments (
-  actionTermId INTEGER NOT NULL,
-  actionFunctionId INTEGER NOT NULL,
-  FOREIGN KEY (actionTermId, actionFunctionId)
-    REFERENCES actionTerms (id, actionFunctionId),
+  actionTermId INTEGER NOT NULL REFERENCES actionTerms (id),
   sortIndex INTEGER NOT NULL,
-  UNIQUE (actionTermId, actionFunctionId, sortIndex)
+  UNIQUE (actionTermId, sortIndex)
   -- TODO Somehow indicate the value of the argument
 );

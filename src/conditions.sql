@@ -23,9 +23,6 @@ CREATE TABLE conditionFunctions (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
   summary TEXT NOT NULL,
-  appliesToOption BOOLEAN NOT NULL,
-  appliesToInteraction BOOLEAN NOT NULL,
-  appliesToMessageGroup BOOLEAN NOT NULL,
   UNIQUE (name COLLATE NOCASE)
 );
 
@@ -42,10 +39,7 @@ CREATE TABLE conditionFunctionArgumentTypes (
 -- Arguments that have been passed to individual condition function terms
 -- Validation is the responsibility of the runtime
 CREATE TABLE conditionTermFunctionArguments (
-  conditionTermId INTEGER NOT NULL,
-  conditionFunctionId INTEGER NOT NULL,
-  FOREIGN KEY (conditionTermId, conditionFunctionId)
-    REFERENCES conditionTerms (id, conditionFunctionId),
+  conditionTermId INTEGER NOT NULL REFERENCES conditionTerms (id),
   sortIndex INTEGER NOT NULL,
   UNIQUE (conditionTermId, conditionFunctionId, sortIndex)
   -- TODO Somehow indicate the value of the argument
