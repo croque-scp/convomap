@@ -1,6 +1,7 @@
 {
   "_meta": {
-    "_convomap": "Made with Convomap https://github.com/croque-scp/convomap"
+    "_convomap": "Made with Convomap https://github.com/croque-scp/convomap",
+    "_convomapVersion": "0.0.0"
   },
   "events": [
     {
