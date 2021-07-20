@@ -14,7 +14,7 @@ CREATE TABLE actionTerms (
   UNIQUE (actionId, sortIndex),
   -- Quick conditional validity check - must always start with ELSE
   CHECK (sortIndex != 0 OR conditionId IS NULL),
-  CHECK ((sortIndex != 0) != (conditionalRootId = id))
+  CHECK (sortIndex != 0 OR conditionalRootId = id)
 );
 
 -- Custom action functions defined by the user
