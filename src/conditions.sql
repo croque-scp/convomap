@@ -14,7 +14,7 @@ CREATE TABLE conditionTerms (
   CHECK ((
     (operator IS NOT NULL) +
     (conditionFunctionId IS NOT NULL)
-  ) == 1)
+  ) == 1),
   UNIQUE (conditionId, sortIndex)
 );
 
@@ -41,6 +41,6 @@ CREATE TABLE conditionFunctionArgumentTypes (
 CREATE TABLE conditionTermFunctionArguments (
   conditionTermId INTEGER NOT NULL REFERENCES conditionTerms (id),
   sortIndex INTEGER NOT NULL,
-  UNIQUE (conditionTermId, conditionFunctionId, sortIndex)
+  UNIQUE (conditionTermId, sortIndex)
   -- TODO Somehow indicate the value of the argument
 );
