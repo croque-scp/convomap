@@ -8,7 +8,7 @@ const db = new RegenerativeDatabase(await prepareDatabase())
 const freshStory = {
   _meta: {
     _convomap: "Made with Convomap https://github.com/rossjrw/convomap",
-    _convomapVersion: "0.0.0", // TODO Get version
+    _convomapVersion: "0.0.0", // TODO Get version - webpack const?
   },
   events: [],
   interactions: [],
