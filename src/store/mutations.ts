@@ -1,0 +1,3 @@
+import { MutationTree } from "vuex"
+
+export const mutations: MutationTree<CMStory> = {}
