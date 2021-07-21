@@ -24,7 +24,6 @@ CREATE TABLE interactions (
 );
 
 CREATE TABLE options (
-  -- Text of the option is kept in the strings table
   id INTEGER PRIMARY KEY,
   interactionId INTEGER NOT NULL REFERENCES interactions (id),
   conditionId INTEGER REFERENCES conditions (id),
@@ -54,7 +53,6 @@ CREATE TABLE modifications (
     optionId,
     messageGroupId
   ),
-  -- Check that exactly one modifier target is not null
   CHECK ((
     (interactionId IS NOT NULL) +
     (optionId IS NOT NULL) +
@@ -70,13 +68,11 @@ CREATE TABLE messageGroups (
   conditionId INTEGER REFERENCES conditions (id),
   conditionalRootId INTEGER NOT NULL REFERENCES messageGroups (id),
   UNIQUE (interactionId, sortIndex),
-  -- Quick conditional validity check - must always start with ELSE
   CHECK (sortIndex != 0 OR conditionId IS NULL),
   CHECK (sortIndex != 0 OR conditionalRootId = id)
 );
 
 CREATE TABLE messages (
-  -- Text of the message is kept in the strings table
   id INTEGER PRIMARY KEY,
   messageGroupId INTEGER NOT NULL REFERENCES messageGroups (id),
   onDisplayActionId INTEGER REFERENCES actions (id),
@@ -84,7 +80,6 @@ CREATE TABLE messages (
   conditionId INTEGER REFERENCES conditions (id),
   conditionalRootId INTEGER NOT NULL REFERENCES messages (id),
   UNIQUE (messageGroupId, sortIndex),
-  -- Quick conditional validity check - must always start with ELSE
   CHECK (conditionId IS NULL OR NOT sortIndex = 0),
   CHECK (sortIndex != 0 OR conditionalRootId = id)
 );
@@ -106,3 +101,98 @@ CREATE TABLE strings (
     (messageId IS NOT NULL)
   ) == 1)
 );
+
+-- Actions to perform when doing stuff
+CREATE TABLE actions (
+  id INTEGER PRIMARY KEY
+);
+
+-- Action terms apply multiple action functions to a single action
+CREATE TABLE actionTerms (
+  id INTEGER PRIMARY KEY,
+  actionId INTEGER NOT NULL REFERENCES actions (id),
+  actionFunctionId INTEGER NOT NULL REFERENCES actionFunctions (id),
+  sortIndex INTEGER NOT NULL,
+  conditionId INTEGER REFERENCES conditions (id),
+  conditionalRootId INTEGER NOT NULL REFERENCES messageGroups (id),
+  UNIQUE (actionId, sortIndex),
+  -- Quick conditional validity check - must always start with ELSE
+  CHECK (sortIndex != 0 OR conditionId IS NULL),
+  CHECK (sortIndex != 0 OR conditionalRootId = id)
+);
+
+-- Custom action functions defined by the user
+CREATE TABLE actionFunctions (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  summary TEXT NOT NULL,
+  -- appliesTo?
+  UNIQUE (name COLLATE NOCASE)
+);
+
+-- Type signatures for action functions
+CREATE TABLE actionFunctionArgumentTypes (
+  actionFunctionId INTEGER NOT NULL REFERENCES actionFunctions (id),
+  name TEXT NOT NULL,
+  summary TEXT NOT NULL,
+  type TEXT NOT NULL, -- string, number, interaction, null?
+  optional BOOLEAN NOT NULL,
+  sortIndex INTEGER NOT NULL,
+  UNIQUE (actionFunctionId, sortIndex)
+);
+
+-- Arguments that have been passed to individual action terms
+-- Validation is the responsibility of the runtime
+CREATE TABLE actionTermFunctionArguments (
+  actionTermId INTEGER NOT NULL REFERENCES actionTerms (id),
+  sortIndex INTEGER NOT NULL,
+  UNIQUE (actionTermId, sortIndex)
+  -- TODO Somehow indicate the value of the argument
+);
+-- A condition is a series of condition terms
+CREATE TABLE conditions (
+  id INTEGER PRIMARY KEY
+);
+
+-- A condition term is either a single boolean condition or an operator
+CREATE TABLE conditionTerms (
+  id INTEGER PRIMARY KEY,
+  conditionId INTEGER NOT NULL REFERENCES conditions (id),
+  sortIndex INTEGER NOT NULL,
+  operator TEXT, -- and, or, not, ever
+  conditionFunctionId INTEGER REFERENCES conditionFunctions (id),
+  -- TODO How are arguments stored?
+  CHECK ((
+    (operator IS NOT NULL) +
+    (conditionFunctionId IS NOT NULL)
+  ) == 1),
+  UNIQUE (conditionId, sortIndex)
+);
+
+-- Custom condition functions defined by the user
+CREATE TABLE conditionFunctions (
+  id INTEGER PRIMARY KEY,
+  name TEXT NOT NULL,
+  summary TEXT NOT NULL,
+  UNIQUE (name COLLATE NOCASE)
+);
+
+-- Type signatures for condition functions
+CREATE TABLE conditionFunctionArgumentTypes (
+  conditionFunctionId INTEGER NOT NULL REFERENCES conditionFunctions (id),
+  name TEXT NOT NULL,
+  type TEXT NOT NULL, -- string, number, interaction, null?
+  optional BOOLEAN NOT NULL,
+  sortIndex INTEGER NOT NULL,
+  UNIQUE (conditionFunctionId, sortIndex)
+);
+
+-- Arguments that have been passed to individual condition function terms
+-- Validation is the responsibility of the runtime
+CREATE TABLE conditionTermFunctionArguments (
+  conditionTermId INTEGER NOT NULL REFERENCES conditionTerms (id),
+  sortIndex INTEGER NOT NULL,
+  UNIQUE (conditionTermId, sortIndex)
+  -- TODO Somehow indicate the value of the argument
+);
+
