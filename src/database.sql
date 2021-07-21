@@ -1,3 +1,11 @@
+CREATE TABLE _meta (
+  _version TEXT NOT NULL,
+  _schemaVersion INTEGER NOT NULL,
+  author TEXT NOT NULL,
+  license TEXT NOT NULL,
+  CHECK (rowid = 1)
+);
+
 CREATE TABLE events (
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
